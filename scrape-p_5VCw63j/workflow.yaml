@@ -1,0 +1,54 @@
+schema: workflow/2022.04
+name: Scrape
+settings:
+  auto_retry: true
+  concurrency: 1
+  error_notification: true
+  lambda_memory: 2304
+  lambda_timeout: 151
+  network: net_N0Bibk
+  rate_limit: 1
+  warm_workers: 2
+triggers:
+- id: ti_wMTEdJp
+steps:
+- namespace: get_request
+  runtime: nodejs18.x
+  uses: http-get-request@1.1.1
+  props:
+    httpRequest:
+      auth:
+        type: none
+        username: ''
+        password: ''
+        token: ''
+      body:
+        contentType: none
+        fields: []
+        mode: fields
+        type: raw
+      headers: []
+      method: GET
+      params:
+      - name: ''
+        value: ''
+        disabled: true
+      url: https://www.bidrustbelt.com/Browse?FullTextQuery=dumbbell
+      tab: Auth
+- namespace: node
+  runtime: nodejs18.x
+  uses: "./node/entry.js"
+  props:
+    htmlContent: "{{steps.get_request.$return_value}}"
+- namespace: send_message_public_channel
+  runtime: nodejs18.x
+  uses: slack-send-message-public-channel@0.2.17
+  props:
+    slack:
+      authProvisionId: apn_b6hOkMO
+    conversation:
+      __lv:
+        label: pierces-playground
+        value: C04AG7G17EG
+    text: "{{steps.node.$return_value[0].imageUrl}}"
+
