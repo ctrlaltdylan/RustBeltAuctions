@@ -1,14 +1,5 @@
 schema: workflow/2022.04
 name: Scrape
-settings:
-  auto_retry: true
-  concurrency: 1
-  error_notification: true
-  lambda_memory: 2304
-  lambda_timeout: 151
-  network: net_N0Bibk
-  rate_limit: 1
-  warm_workers: 2
 triggers:
 - id: ti_wMTEdJp
 steps:
@@ -40,6 +31,17 @@ steps:
   uses: "./node/entry.js"
   props:
     htmlContent: "{{steps.get_request.$return_value}}"
+- namespace: add_update_record
+  runtime: nodejs18.x
+  uses: data_stores-add-update-record@0.0.9
+  props:
+    dataStore:
+      storeId: ds_aQudl3
+    key:
+      __lv:
+        label: seen_listings
+        value: seen_listings
+    value: "[{{steps.node.$return_value[0].listingId}}, ...]"
 - namespace: send_message_public_channel
   runtime: nodejs18.x
   uses: slack-send-message-public-channel@0.2.17
